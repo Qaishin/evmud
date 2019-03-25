@@ -19,6 +19,7 @@ class CmdChop(Command):
     """
     key = "chop"
     aliases = ["chop down"]
+    help_category = "harvesting"
 
     def parse(self):
         "Simple parser to get a target."
@@ -32,10 +33,16 @@ class CmdChop(Command):
 
         if not self.target:
             caller.msg("You need to specify a tree to chop!")
-        else:
-            target = caller.search(self.target)
-            if not target:
-                return
-            caller.msg("You swing your axe into {0}, leaving a sizeable impression.".format(target.name))
-            string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name, target.name)
-            location.msg_contents(string, exclude=[caller])
+            return
+
+        target = caller.search(self.target)
+        if not target:
+            return
+
+        if not target.access(caller, "chop"):
+            caller.msg("You are unable to chop {0}!".format(target.name))
+            return
+
+        caller.msg("You swing your axe into {0}, leaving a sizeable impression.".format(target.name))
+        string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name, target.name)
+        location.msg_contents(string, exclude=[caller])
