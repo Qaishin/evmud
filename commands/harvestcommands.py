@@ -6,6 +6,7 @@ Commands describe the input the account can do to the game.
 """
 
 from evennia import Command
+from typeclasses.harvestables import Tree
 
 
 class CmdChop(Command):
@@ -39,7 +40,7 @@ class CmdChop(Command):
         if not target:
             return
 
-        if not target.access(caller, "chop"):
+        if not (isinstance(target, Tree) and target.access(caller, "chop")):
             caller.msg("You are unable to chop {0}!".format(target.name))
             return
 
