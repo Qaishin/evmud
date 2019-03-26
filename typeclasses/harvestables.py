@@ -1,4 +1,4 @@
-from objects import Object
+from typeclasses.objects import Object
 
 
 class Tree(Object):
@@ -7,4 +7,4 @@ class Tree(Object):
     """
     def at_object_creation(self):
         self.locks.add("get:false()")
-        self.db.get_err_msg("You can't pick up {0}. Try chopping it with an axe instead!".format(self.name))
+        self.db.get_err_msg = "You can't pick {0} up. Try chopping it with an axe instead!".format(self.name)
