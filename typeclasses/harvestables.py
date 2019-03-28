@@ -1,5 +1,6 @@
-from typeclasses.objects import Object
 from evennia import DefaultScript
+from evennia.utils.logger import log_err
+from typeclasses.objects import Object
 
 
 def stop_harvests(character):
@@ -22,6 +23,7 @@ class TreeChopScript(DefaultScript):
     def at_repeat(self):
         target = self.attributes.get('target')
         if not target:
+            log_err("TreeChopScript: Lost target. Character {0}".format(self.obj.name))
             self.stop()
             return
 
