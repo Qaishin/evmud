@@ -19,6 +19,8 @@ class TreeChopScript(DefaultScript):
         self.desc = "Chops down a tree"
         self.interval = 2  # 2 second intervals for harvest command
         self.persistent = False
+        self.ndb.first_msg = False
+        self.ndb.second_msg = False
 
     def at_repeat(self):
         target = self.attributes.get('target')
@@ -31,9 +33,14 @@ class TreeChopScript(DefaultScript):
         string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(self.obj.name,
                                                                                          target.name)
         self.obj.location.msg_contents(string, exclude=[self.obj])
-        tree_destroyed = target.chop(5)
-        if tree_destroyed:
+        if target.chop(5):
             self.stop()
+        elif target.hp <= target.max_hp / 4 and not self.ndb.first_msg:
+            self.obj.msg("{0} is beginning to lean heavily.".format(target.name))
+            self.ndb.first_msg = True
+        elif target.hp <= target.max_hp / 2 and not self.ndb.second_msg:
+            self.obj.msg("There is now a sizeable wedge in {0}".format(target.name))
+            self.ndb.second_msg = True
 
     def stop_chopping(self):
         self.obj.msg("You stop chopping {0}".format(self.attributes.get('target').name))
@@ -47,7 +54,16 @@ class Tree(Object):
     def at_object_creation(self):
         self.locks.add("get:false();chop:all()")
         self.db.get_err_msg = "You can't pick {0} up. Try chopping it with an axe instead!".format(self.name)
+        self.db.max_hp = 20
         self.db.hp = 20
+
+    @property
+    def hp(self):
+        return self.db.hp
+
+    @property
+    def max_hp(self):
+        return self.db.max_hp
 
     def chop(self, amount):
         """
