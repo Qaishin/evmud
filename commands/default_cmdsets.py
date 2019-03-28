@@ -15,7 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from commands.harvestcommands import CmdChop
+from commands.harvestcommands import CmdChop, CmdStop
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -35,6 +35,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(CmdChop())
+        self.add(CmdStop())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

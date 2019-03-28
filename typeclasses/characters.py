@@ -8,6 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from typeclasses.harvestables import stop_harvests
 
 
 class Character(DefaultCharacter):
@@ -30,4 +31,6 @@ class Character(DefaultCharacter):
     at_post_puppet - Echoes "AccountName has entered the game" to the room.
 
     """
-    pass
+    def at_before_move(self, destination, **kwargs):
+        stop_harvests(self)
+        return True

@@ -5,8 +5,25 @@ Commands describe the input the account can do to the game.
 
 """
 
-from evennia import Command
-from typeclasses.harvestables import Tree
+from evennia import Command, create_script
+from typeclasses.harvestables import Tree, stop_harvests
+
+
+class CmdStop(Command):
+    """
+    Stops current timed harvest command.
+
+    Usage:
+        stop
+
+    This will stop any harvesting command currently being used,
+    such as chopping trees or digging.
+    """
+    key = "stop"
+    help_category = "harvesting"
+
+    def func(self):
+        stop_harvests(self.caller)
 
 
 class CmdChop(Command):
@@ -30,7 +47,6 @@ class CmdChop(Command):
         "This does the chopping!"
 
         caller = self.caller
-        location = caller.location
 
         if not self.target:
             caller.msg("You need to specify a tree to chop!")
@@ -41,9 +57,7 @@ class CmdChop(Command):
             return
 
         if not (isinstance(target, Tree) and target.access(caller, "chop")):
-            caller.msg("You are unable to chop {0}!".format(target.name))
+            caller.msg("You are unable to chop down {0}!".format(target.name))
             return
 
-        caller.msg("You swing your axe into {0}, leaving a sizeable impression.".format(target.name))
-        string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name, target.name)
-        location.msg_contents(string, exclude=[caller])
+        create_script('harvestables.TreeChopScript', obj=caller, attributes=[('target', target)])
