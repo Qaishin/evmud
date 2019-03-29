@@ -3,10 +3,10 @@ from evennia.utils.logger import log_err
 from typeclasses.objects import Object
 
 
-def stop_harvests(character):
+def stop_harvests(character, interrupted=False):
     "Stops any harvesting activity on the passed character."
     for t in character.scripts.get('treechop_script'):
-        t.stop_chopping()
+        t.stop_chopping(interrupted)
 
 
 class TreeChopScript(DefaultScript):
@@ -42,8 +42,12 @@ class TreeChopScript(DefaultScript):
             self.obj.msg("There is now a sizeable wedge in {0}".format(target.name))
             self.ndb.second_msg = True
 
-    def stop_chopping(self):
-        self.obj.msg("You stop chopping {0}".format(self.attributes.get('target').name))
+    def stop_chopping(self, interrupted):
+        if interrupted:
+            self.obj.msg("You are interrupted and fail to finish chopping down {0}".
+                         format(self.attributes.get('target').name))
+        else:
+            self.obj.msg("You stop chopping {0}".format(self.attributes.get('target').name))
         self.stop()
 
 

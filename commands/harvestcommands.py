@@ -48,6 +48,10 @@ class CmdChop(Command):
 
         caller = self.caller
 
+        if caller.scripts.get('treechop_script'):
+            caller.msg("You are already in the middle of chopping down a tree!")
+            return
+
         if not self.target:
             caller.msg("You need to specify a tree to chop!")
             return

@@ -32,5 +32,5 @@ class Character(DefaultCharacter):
 
     """
     def at_before_move(self, destination, **kwargs):
-        stop_harvests(self)
+        stop_harvests(self, interrupted=True)
         return True
