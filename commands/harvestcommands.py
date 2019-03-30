@@ -85,6 +85,7 @@ class CmdChop(Command):
             caller.location.msg_contents(string, exclude=[caller])
             if target.chop(5):
                 caller.ndb.harvesting = False
+                caller.ndb.harvesting_interrupt = None
                 return
             elif target.hp <= target.max_hp / 4:
                 caller.msg("{0} is beginning to lean heavily.".format(target.name))
