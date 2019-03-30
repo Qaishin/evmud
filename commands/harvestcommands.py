@@ -9,6 +9,11 @@ from evennia import Command
 from typeclasses.harvestables import Tree
 
 
+def stop_harvesting(character):
+    character.ndb.harvesting = False
+    character.ndb.harvesting_interrupt = None
+
+
 class CmdStop(Command):
     """
     Stops current timed harvest command.
@@ -24,7 +29,7 @@ class CmdStop(Command):
 
     def func(self):
         self.caller.msg("You cease harvesting activities.")
-        self.caller.ndb.harvesting = False
+        stop_harvesting(self.caller)
 
 
 class CmdChop(Command):
@@ -75,8 +80,7 @@ class CmdChop(Command):
         while caller.ndb.harvesting:
             # The tree was destroyed already, exit gracefully.
             if not target.pk:
-                caller.ndb.harvesting = False
-                caller.ndb.harvesting_interrupt = None
+                stop_harvesting(caller)
                 return
 
             caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(target.name))
@@ -84,8 +88,7 @@ class CmdChop(Command):
                                                                                              target.name)
             caller.location.msg_contents(string, exclude=[caller])
             if target.chop(5):
-                caller.ndb.harvesting = False
-                caller.ndb.harvesting_interrupt = None
+                stop_harvesting(caller)
                 return
             elif target.hp <= target.max_hp / 4:
                 caller.msg("{0} is beginning to lean heavily.".format(target.name))
@@ -94,4 +97,4 @@ class CmdChop(Command):
 
             yield 2
 
-        caller.ndb.harvesting_interrupt = None
+        stop_harvesting(caller)
