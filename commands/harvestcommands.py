@@ -70,9 +70,11 @@ class CmdChop(Command):
             caller.msg("You are unable to chop down {0}!".format(target.name))
             return
 
+        # Code elsewhere may need to interrupt our tree chopping madness, such as
+        # moving to another room. This provides a callback that gives a sensible message
+        # indicating that we were interrupted unexpectedly.
         def interrupt_callback():
             caller.msg("You are interrupted and fail to finish chopping down {0}".format(target.name))
-            caller.ndb.harvesting_interrupted = False
         caller.ndb.harvesting_interrupt = interrupt_callback
 
         caller.ndb.harvesting = True

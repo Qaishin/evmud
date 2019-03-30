@@ -8,6 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from commands.harvestcommands import stop_harvesting
 
 
 class Character(DefaultCharacter):
@@ -40,9 +41,8 @@ class Character(DefaultCharacter):
     def at_before_move(self, destination, **kwargs):
         # If we were in the middle of harvesting, it needs to be cancelled.
         if self.ndb.harvesting:
-            self.ndb.harvesting = False
             # If we set an interrupting callback, call it now.
             if self.ndb.harvesting_interrupt:
                 self.ndb.harvesting_interrupt()
-                self.ndb.harvesting_interrupt = None
+            stop_harvesting(self)
         return True
