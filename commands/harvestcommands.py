@@ -71,8 +71,6 @@ class CmdChop(Command):
         caller.ndb.harvesting_interrupt = interrupt_callback
 
         caller.ndb.harvesting = True
-        first_msg = False
-        second_msg = False
 
         while caller.ndb.harvesting:
             # The tree was destroyed already, exit gracefully.
@@ -88,12 +86,10 @@ class CmdChop(Command):
             if target.chop(5):
                 caller.ndb.harvesting = False
                 return
-            elif target.hp <= target.max_hp / 4 and not first_msg:
+            elif target.hp <= target.max_hp / 4:
                 caller.msg("{0} is beginning to lean heavily.".format(target.name))
-                first_msg = True
-            elif target.hp <= target.max_hp / 2 and not second_msg:
+            elif target.hp <= target.max_hp / 2:
                 caller.msg("There is now a sizeable wedge in {0}".format(target.name))
-                second_msg = True
 
             yield 2
 
