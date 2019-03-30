@@ -5,8 +5,8 @@ Commands describe the input the account can do to the game.
 
 """
 
-from evennia import Command, create_script
-from typeclasses.harvestables import Tree, stop_harvests
+from evennia import Command
+from typeclasses.harvestables import Tree
 
 
 class CmdStop(Command):
@@ -23,7 +23,8 @@ class CmdStop(Command):
     help_category = "harvesting"
 
     def func(self):
-        stop_harvests(self.caller)
+        self.caller.msg("You cease harvesting activities.")
+        self.caller.ndb.harvesting = False
 
 
 class CmdChop(Command):
@@ -48,8 +49,8 @@ class CmdChop(Command):
 
         caller = self.caller
 
-        if caller.scripts.get('treechop_script'):
-            caller.msg("You are already in the middle of chopping down a tree!")
+        if caller.ndb.harvesting:
+            caller.msg("You are already in the middle of harvesting!")
             return
 
         if not self.target:
@@ -64,4 +65,32 @@ class CmdChop(Command):
             caller.msg("You are unable to chop down {0}!".format(target.name))
             return
 
-        create_script('harvestables.TreeChopScript', obj=caller, attributes=[('target', target)])
+        def interrupt_callback():
+            caller.msg("You are interrupted and fail to finish chopping down {0}".format(target.name))
+            caller.ndb.harvesting_interrupted = False
+        caller.ndb.harvesting_interrupt = interrupt_callback
+
+        caller.ndb.harvesting = True
+
+        while caller.ndb.harvesting:
+            # The tree was destroyed already, exit gracefully.
+            if not target.pk:
+                caller.ndb.harvesting = False
+                caller.ndb.harvesting_interrupt = None
+                return
+
+            caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(target.name))
+            string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name,
+                                                                                             target.name)
+            caller.location.msg_contents(string, exclude=[caller])
+            if target.chop(5):
+                caller.ndb.harvesting = False
+                return
+            elif target.hp <= target.max_hp / 4:
+                caller.msg("{0} is beginning to lean heavily.".format(target.name))
+            elif target.hp <= target.max_hp / 2:
+                caller.msg("There is now a sizeable wedge in {0}".format(target.name))
+
+            yield 2
+
+        caller.ndb.harvesting_interrupt = None
