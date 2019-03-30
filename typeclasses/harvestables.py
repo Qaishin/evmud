@@ -1,4 +1,13 @@
+"""
+Harvestables
+
+Harvestables are Objects that may be harvested by players utilizing
+various commands, such as chop, gather, and mine.
+
+"""
+from evennia.prototypes.spawner import spawn
 from typeclasses.objects import Object
+from typeclasses.craftingcomponents import COMPONENT_PROTOTYPES
 
 
 class Tree(Object):
@@ -10,6 +19,10 @@ class Tree(Object):
         self.db.get_err_msg = "You can't pick {0} up. Try chopping it with an axe instead!".format(self.name)
         self.db.max_hp = 20
         self.db.hp = 20
+        # The crafting component prototype that should be spawned on a successful harvest.
+        self.db.component_drop = "log"
+        # How many components should be dropped on a successful harvest.
+        self.db.component_dropamt = 3
 
     @property
     def hp(self):
@@ -31,6 +44,11 @@ class Tree(Object):
         if self.db.hp <= 0:
             # spawn logs
             self.location.msg_contents("{0} makes a loud cracking sound and falls to the ground.".format(self.name))
+
+            for i in range(self.db.component_dropamt):
+                drop = spawn(COMPONENT_PROTOTYPES[self.db.component_drop], prototype_parents=COMPONENT_PROTOTYPES)[0]
+                drop.location = self.location
+
             self.delete()
             return True
         else:
