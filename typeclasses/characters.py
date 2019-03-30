@@ -8,7 +8,6 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
-from typeclasses.harvestables import stop_harvests
 
 
 class Character(DefaultCharacter):
@@ -31,6 +30,19 @@ class Character(DefaultCharacter):
     at_post_puppet - Echoes "AccountName has entered the game" to the room.
 
     """
+    def at_init(self):
+        # Is the player currently harvesting a resource?
+        self.ndb.harvesting = False
+        # If harvesting is interrupted, such as by moving to a different room,
+        # a callback may be supplied that can be called upon interruption.
+        self.ndb.harvesting_interrupt = None
+
     def at_before_move(self, destination, **kwargs):
-        stop_harvests(self, interrupted=True)
+        # If we were in the middle of harvesting, it needs to be cancelled.
+        if self.ndb.harvesting:
+            self.ndb.harvesting = False
+            # If we set an interrupting callback, call it now.
+            if self.ndb.harvesting_interrupt:
+                self.ndb.harvesting_interrupt()
+                self.ndb.harvesting_interrupt = None
         return True
