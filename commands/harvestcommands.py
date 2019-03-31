@@ -28,8 +28,11 @@ class CmdStop(Command):
     help_category = "harvesting"
 
     def func(self):
-        self.caller.msg("You cease harvesting activities.")
-        stop_harvesting(self.caller)
+        if not self.caller.ndb.harvesting:
+            self.caller.msg("You are not currently harvesting anything...")
+        else:
+            self.caller.msg("You cease harvesting activities.")
+            stop_harvesting(self.caller)
 
 
 class CmdChop(Command):
@@ -95,7 +98,7 @@ class CmdChop(Command):
             elif target.hp <= target.max_hp / 4:
                 caller.msg("{0} is beginning to lean heavily.".format(target.name))
             elif target.hp <= target.max_hp / 2:
-                caller.msg("There is now a sizeable wedge in {0}".format(target.name))
+                caller.msg("There is a sizeable wedge in {0}".format(target.name))
 
             yield 2
 
