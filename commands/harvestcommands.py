@@ -73,7 +73,7 @@ class CmdChop(Command):
             caller.msg("You are unable to chop down {0}!".format(target.name))
             return
 
-        # Code elsewhere may need to interrupt our tree chopping madness, such as
+        # Code elsewhere may need to interrupt our tree chopping madness, such as when
         # moving to another room. This provides a callback that gives a sensible message
         # indicating that we were interrupted unexpectedly.
         def interrupt_callback():
@@ -82,24 +82,25 @@ class CmdChop(Command):
 
         caller.ndb.harvesting = True
 
-        while caller.ndb.harvesting:
-            # The tree was destroyed already, exit gracefully.
-            if not target.pk:
-                stop_harvesting(caller)
-                return
+        try:
+            while caller.ndb.harvesting:
+                # The tree was destroyed already, exit gracefully.
+                if not target.pk:
+                    stop_harvesting(caller)
+                    return
 
-            caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(target.name))
-            string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name,
-                                                                                             target.name)
-            caller.location.msg_contents(string, exclude=[caller])
-            if target.chop(5):
-                stop_harvesting(caller)
-                return
-            elif target.hp <= target.max_hp / 4:
-                caller.msg("{0} is beginning to lean heavily.".format(target.name))
-            elif target.hp <= target.max_hp / 2:
-                caller.msg("There is a sizeable wedge in {0}".format(target.name))
+                caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(target.name))
+                string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name,
+                                                                                                 target.name)
+                caller.location.msg_contents(string, exclude=[caller])
+                if target.chop(5):
+                    stop_harvesting(caller)
+                    return
+                elif target.hp <= target.max_hp / 4:
+                    caller.msg("{0} is beginning to lean heavily.".format(target.name))
+                elif target.hp <= target.max_hp / 2:
+                    caller.msg("There is a sizeable wedge in {0}".format(target.name))
 
-            yield 2
-
-        stop_harvesting(caller)
+                yield 2
+        finally:
+            stop_harvesting(caller)

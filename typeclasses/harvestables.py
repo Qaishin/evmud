@@ -2,12 +2,26 @@
 Harvestables
 
 Harvestables are Objects that may be harvested by players utilizing
-various commands, such as chop, gather, and mine.
+various commands, such as chop, gather, and mine. These objects then
+provide various crafting components, which are implemented through
+Evennia's prototype spawning system.
 
 """
 from evennia.prototypes.spawner import spawn
 from typeclasses.objects import Object
-from typeclasses.craftingcomponents import COMPONENT_PROTOTYPES
+
+
+COMPONENT_PROTOTYPES = {
+    "log": {
+        "typeclass": "typeclasses.harvestables.CraftingComponent",
+        "key": "Log",
+        "desc": "A generic log."
+    }
+}
+
+
+class CraftingComponent(Object):
+    pass
 
 
 class Tree(Object):
