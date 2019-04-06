@@ -19,7 +19,7 @@ class CmdStop(Command):
     Stops current timed harvest command.
 
     Usage:
-        stop
+      stop
 
     This will stop any harvesting command currently being used,
     such as chopping trees or digging.
@@ -40,7 +40,7 @@ class CmdChop(Command):
     Chop trees.
 
     Usage:
-        chop [target]
+      chop <target>
 
     This will use an axe in your inventory to chop a tree.
     """
