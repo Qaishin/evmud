@@ -8,10 +8,11 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
+from typeclasses.objects import Object
 from commands.harvest import stop_harvesting
 
 
-class Character(DefaultCharacter):
+class Character(Object, DefaultCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
     following functionality:

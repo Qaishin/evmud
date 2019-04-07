@@ -14,14 +14,18 @@ from typeclasses.objects import Object
 COMPONENT_PROTOTYPES = {
     "log": {
         "typeclass": "typeclasses.harvestables.CraftingComponent",
-        "key": "Log",
+        "key": "log",
         "desc": "A generic log."
     }
 }
 
 
 class CraftingComponent(Object):
-    pass
+    """
+    This typeclass describes a crafting component.
+    """
+    def at_object_creation(self):
+        self.stack.stackable = True
 
 
 class Tree(Object):
@@ -59,9 +63,9 @@ class Tree(Object):
             # spawn logs
             self.location.msg_contents("{0} makes a loud cracking sound and falls to the ground.".format(self.name))
 
-            for i in range(self.db.component_dropamt):
-                drop = spawn(COMPONENT_PROTOTYPES[self.db.component_drop], prototype_parents=COMPONENT_PROTOTYPES)[0]
-                drop.location = self.location
+            drop = spawn(COMPONENT_PROTOTYPES[self.db.component_drop], prototype_parents=COMPONENT_PROTOTYPES)[0]
+            drop.stack.count = self.db.component_dropamt
+            drop.move_to(self.location, quiet=True)
 
             self.delete()
             return True
