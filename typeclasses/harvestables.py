@@ -21,7 +21,11 @@ COMPONENT_PROTOTYPES = {
 
 
 class CraftingComponent(Object):
-    pass
+    """
+    This typeclass describes a crafting component.
+    """
+    def at_object_creation(self):
+        self.stack.stackable = True
 
 
 class Tree(Object):

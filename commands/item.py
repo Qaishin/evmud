@@ -198,6 +198,23 @@ class CmdGive(MuxCommand):
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
+    def parse(self):
+        super().parse()
+
+        self.target = self.lhs
+        self.amount = 1
+
+        arglist = [args.strip() for args in self.lhslist[0].split()]
+
+        if len(arglist) > 1:
+            try:
+                self.amount = int(arglist[0])
+                if self.amount <= 0:
+                    self.amount = 1
+                self.target = " ".join(arglist[1:])
+            except ValueError:
+                pass
+
     def func(self):
         """Implement give"""
 
@@ -205,7 +222,8 @@ class CmdGive(MuxCommand):
         if not self.args or not self.rhs:
             caller.msg("Usage: give <inventory object> = <target>")
             return
-        to_give = caller.search(self.lhs, location=caller,
+
+        to_give = caller.search(self.target, location=caller,
                                 nofound_string="You aren't carrying %s." % self.lhs,
                                 multimatch_string="You carry more than one %s:" % self.lhs)
         target = caller.search(self.rhs)
@@ -221,6 +239,9 @@ class CmdGive(MuxCommand):
         # calling at_before_give hook method
         if not to_give.at_before_give(caller, target):
             return
+
+        if to_give.stack.stackable:
+            to_give = to_give.stack.split(self.amount)
 
         # give object
         caller.msg("You give %s to %s." % (to_give.key, target.key))
