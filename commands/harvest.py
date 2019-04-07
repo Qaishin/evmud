@@ -5,13 +5,24 @@ Commands describe the input the account can do to the game.
 
 """
 
-from evennia import Command
+from evennia import CmdSet
+from commands.command import Command
 from typeclasses.harvestables import Tree
 
 
 def stop_harvesting(character):
     character.ndb.harvesting = False
     character.ndb.harvesting_interrupt = None
+
+
+class HarvestCmdSet(CmdSet):
+    """ Command set for harvesting commands. """
+    key = 'harvest_cmdset'
+    priority = 1
+
+    def at_cmdset_creation(self):
+        self.add(CmdStop())
+        self.add(CmdChop())
 
 
 class CmdStop(Command):
