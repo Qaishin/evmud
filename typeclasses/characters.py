@@ -8,7 +8,7 @@ creation commands.
 
 """
 from evennia import DefaultCharacter
-from commands.harvestcommands import stop_harvesting
+from commands.harvest import stop_harvesting
 
 
 class Character(DefaultCharacter):
