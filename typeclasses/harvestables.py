@@ -24,7 +24,7 @@ class CraftingComponent(Object):
     """
     This typeclass describes a crafting component.
     """
-    def at_object_creation(self):
+    def basetype_posthook_setup(self):
         self.stack.stackable = True
 
 
