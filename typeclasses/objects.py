@@ -10,8 +10,9 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
+from collections import defaultdict
 from evennia import DefaultObject
-from evennia.utils import lazy_property
+from evennia.utils import lazy_property, list_to_string
 from world.stacks import StackHandler
 
 
@@ -177,3 +178,53 @@ class Object(DefaultObject):
                 # If we found another object with the same key and stackable property is True, then perform merge.
                 if found.stack.stackable:
                     obj.stack.merge(found)
+
+    def return_appearance(self, looker, **kwargs):
+        """
+        This formats a description. It is the hook a 'look' command
+        should call.
+
+        Args:
+            looker (Object): Object doing the looking.
+            **kwargs (dict): Arbitrary, optional arguments for users
+                overriding the call (unused by default).
+        """
+        if not looker:
+            return ""
+        # get and identify all objects
+        visible = (con for con in self.contents if con != looker and
+                   con.access(looker, "view"))
+        exits, users, things = [], [], defaultdict(list)
+        for con in visible:
+            key = con.get_display_name(looker)
+            if con.destination:
+                exits.append(key)
+            elif con.has_account:
+                users.append("|c%s|n" % key)
+            else:
+                # things can be pluralized
+                things[key].append(con)
+        # get description, build string
+        string = "|c%s|n\n" % self.get_display_name(looker)
+        desc = self.db.desc
+        if desc:
+            string += "%s" % desc
+        if exits:
+            string += "\n|wExits:|n " + list_to_string(exits)
+        if users or things:
+            # handle pluralization of things (never pluralize users)
+            thing_strings = []
+            for key, itemlist in sorted(things.items()):
+                nitem = len(itemlist)
+                if nitem == 1:
+                    if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
+                        key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
+                    else:
+                        key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                else:
+                    key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
+                thing_strings.append(key)
+
+            string += "\n|wYou see:|n " + list_to_string(users + thing_strings)
+
+        return string

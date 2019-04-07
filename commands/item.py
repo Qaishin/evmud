@@ -43,9 +43,9 @@ class CmdInventory(MuxCommand):
             table = evtable.EvTable(border="header")
             for item in items:
                 if item.stack.stackable:
-                    table.add_row(f"|w(|g{item.stack.count}|w)|C{item.name}|n", item.db.desc or "")
+                    table.add_row(f"|C{item.name}|n|w(|g{item.stack.count}|w)|n", item.db.desc or "")
                 else:
-                    table.add_row("|C%s|n" % item.name, item.db.desc or "")
+                    table.add_row(f"|C{item.name}|n", item.db.desc or "")
             string = "|wYou are carrying:\n%s" % table
         self.caller.msg(string)
 
@@ -55,7 +55,7 @@ class CmdGet(MuxCommand):
     pick up something
 
     Usage:
-      get <obj>
+      get [amount] <obj>
 
     Picks up an object from your location and puts it in
     your inventory.
@@ -111,12 +111,15 @@ class CmdGet(MuxCommand):
         if obj.stack.stackable:
             obj = obj.stack.split(self.amount)
 
+            caller.msg(f"You pick up {obj.stack.count} {obj.name}{'s' if self.amount > 1 else ''}.")
+            caller.location.msg_contents(f"{caller.name} picks up {obj.stack.count} {obj.name}"
+                                         f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+        else:
+            caller.msg(f"You pick up {obj.name}.")
+            caller.location.msg_contents(f"{caller.name} picks up {obj.name}.", exclude=caller)
+
         obj.move_to(caller, quiet=True)
-        caller.msg("You pick up %s." % obj.name)
-        caller.location.msg_contents("%s picks up %s." %
-                                     (caller.name,
-                                      obj.name),
-                                     exclude=caller)
+
         # calling at_get hook method
         obj.at_get(caller)
 
@@ -126,7 +129,7 @@ class CmdDrop(MuxCommand):
     drop something
 
     Usage:
-      drop <obj>
+      drop [amount] <obj>
 
     Lets you drop an object from your inventory into the
     location you are currently in.
@@ -173,12 +176,16 @@ class CmdDrop(MuxCommand):
 
         if obj.stack.stackable:
             obj = obj.stack.split(self.amount)
+            caller.msg(f"You drop {obj.stack.count} {obj.name}"
+                       f"{'s' if self.amount > 1 else ''}.")
+            caller.location.msg_contents(f"{caller.name} drops {obj.stack.count} {obj.name}"
+                                         f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+        else:
+            caller.msg(f"You drop {obj.name}.")
+            caller.location.msg_contents(f"{caller.name} drops {obj.name}.", exclude=caller)
 
         obj.move_to(caller.location, quiet=True)
-        caller.msg("You drop %s." % (obj.name,))
-        caller.location.msg_contents("%s drops %s." %
-                                     (caller.name, obj.name),
-                                     exclude=caller)
+
         # Call the object script's at_drop() method.
         obj.at_drop(caller)
 
@@ -188,7 +195,7 @@ class CmdGive(MuxCommand):
     give away something to someone
 
     Usage:
-      give <inventory obj> <to||=> <target>
+      give [amount] <inventory obj> <to||=> <target>
 
     Gives an items from your inventory to another character,
     placing it in their inventory.
@@ -220,7 +227,7 @@ class CmdGive(MuxCommand):
 
         caller = self.caller
         if not self.args or not self.rhs:
-            caller.msg("Usage: give <inventory object> = <target>")
+            caller.msg("Usage: give [amount] <inventory object> to <target>")
             return
 
         to_give = caller.search(self.target, location=caller,
@@ -242,10 +249,16 @@ class CmdGive(MuxCommand):
 
         if to_give.stack.stackable:
             to_give = to_give.stack.split(self.amount)
+            caller.msg(f"You give {to_give.stack.count} {to_give.key}{'s' if self.amount > 1 else ''}"
+                       f" to {target.key}.")
+            target.msg(f"{caller.key} gives you {to_give.stack.count} {to_give.name}"
+                       f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+        else:
+            caller.msg(f"You give {to_give.key} to {target.key}.")
+            target.msg(f"{caller.key} gives you {to_give.name}.", exclude=caller)
 
         # give object
-        caller.msg("You give %s to %s." % (to_give.key, target.key))
         to_give.move_to(target, quiet=True)
-        target.msg("%s gives you %s." % (caller.key, to_give.key))
+
         # Call the object script's at_give() method.
         to_give.at_give(caller, target)
