@@ -65,13 +65,16 @@ class StackHandler:
         if amount >= self.count:
             return self.obj
         else:
-            return self.obj.copy(new_key=self.obj.key)
-            self.attr_dict['count'] -= amount
+            new_obj = self.obj.copy(new_key=self.obj.key)
+            self.count -= amount
+            new_obj.stack.stackable = True
+            new_obj.stack.count = amount
+            return new_obj
 
     def merge(self, obj):
         "Merge given object stack into this one."
-        self.attr_dict['count'] += obj.stack.count
-        del obj
+        self.count += obj.stack.count
+        obj.delete()
 
     def consume(self, amount):
         """
@@ -81,6 +84,6 @@ class StackHandler:
         Args:
             amount: Amount to consume from this stack.
         """
-        self.attr_dict['count'] -= amount
+        self.count -= amount
         if self.count <= 0:
-            del self.obj
+            self.obj.delete()

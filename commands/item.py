@@ -4,6 +4,7 @@ Item related commands module.
 """
 from evennia import CmdSet
 from evennia.commands.default.muxcommand import MuxCommand
+from evennia.utils import evtable
 
 
 class ItemCmdSet(CmdSet):
@@ -12,9 +13,41 @@ class ItemCmdSet(CmdSet):
     priority = 1
 
     def at_cmdset_creation(self):
+        self.add(CmdInventory())
         self.add(CmdGet())
         self.add(CmdDrop())
         self.add(CmdGive())
+
+
+class CmdInventory(MuxCommand):
+    """
+    view inventory
+
+    Usage:
+      inventory
+      inv
+
+    Shows your inventory.
+    """
+    key = "inventory"
+    aliases = ["inv", "i"]
+    locks = "cmd:all()"
+    arg_regex = r"$"
+
+    def func(self):
+        """check inventory"""
+        items = self.caller.contents
+        if not items:
+            string = "You are not carrying anything."
+        else:
+            table = evtable.EvTable(border="header")
+            for item in items:
+                if item.stack.stackable:
+                    table.add_row(f"|w(|g{item.stack.count}|w)|C{item.name}|n", item.db.desc or "")
+                else:
+                    table.add_row("|C%s|n" % item.name, item.db.desc or "")
+            string = "|wYou are carrying:\n%s" % table
+        self.caller.msg(string)
 
 
 class CmdGet(MuxCommand):
@@ -75,6 +108,9 @@ class CmdGet(MuxCommand):
         if not obj.at_before_get(caller):
             return
 
+        if obj.stack.stackable:
+            obj = obj.stack.split(self.amount)
+
         obj.move_to(caller, quiet=True)
         caller.msg("You pick up %s." % obj.name)
         caller.location.msg_contents("%s picks up %s." %
@@ -100,6 +136,21 @@ class CmdDrop(MuxCommand):
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
+    def parse(self):
+        super().parse()
+
+        self.target = self.args
+        self.amount = 1
+
+        if len(self.arglist) > 1:
+            try:
+                self.amount = int(self.arglist[0])
+                if self.amount <= 0:
+                    self.amount = 1
+                self.target = " ".join(self.arglist[1:])
+            except ValueError:
+                pass
+
     def func(self):
         """Implement command"""
 
@@ -110,7 +161,7 @@ class CmdDrop(MuxCommand):
 
         # Because the DROP command by definition looks for items
         # in inventory, call the search function using location = caller
-        obj = caller.search(self.args, location=caller,
+        obj = caller.search(self.target, location=caller,
                             nofound_string="You aren't carrying %s." % self.args,
                             multimatch_string="You carry more than one %s:" % self.args)
         if not obj:
@@ -119,6 +170,9 @@ class CmdDrop(MuxCommand):
         # Call the object script's at_before_drop() method.
         if not obj.at_before_drop(caller):
             return
+
+        if obj.stack.stackable:
+            obj = obj.stack.split(self.amount)
 
         obj.move_to(caller.location, quiet=True)
         caller.msg("You drop %s." % (obj.name,))

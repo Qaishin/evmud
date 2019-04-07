@@ -166,3 +166,14 @@ class Object(DefaultObject):
     def stack(self):
         """ StackHandler that manages stacks. """
         return StackHandler(self)
+
+    def at_object_receive(self, obj, source_location):
+        # Consolidate stackable items together.
+        if obj.stack.stackable:
+            for found in self.search(obj.key, location=self, quiet=True):
+                # Skip over received object, we want to move existing stackables into this one.
+                if found is obj:
+                    continue
+                # If we found another object with the same key and stackable property is True, then perform merge.
+                if found.stack.stackable:
+                    obj.stack.merge(found)
