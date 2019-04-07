@@ -32,20 +32,38 @@ class CmdGet(MuxCommand):
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
+    def parse(self):
+        super().parse()
+
+        self.target = self.args
+        self.amount = 1
+
+        if len(self.arglist) > 1:
+            try:
+                self.amount = int(self.arglist[0])
+                if self.amount <= 0:
+                    self.amount = 1
+                self.target = " ".join(self.arglist[1:])
+            except ValueError:
+                pass
+
     def func(self):
         """implements the command."""
 
         caller = self.caller
-
         if not self.args:
             caller.msg("Get what?")
             return
-        obj = caller.search(self.args, location=caller.location)
+
+        obj = caller.search(self.target, location=caller.location)
+
         if not obj:
             return
+
         if caller == obj:
             caller.msg("You can't get yourself.")
             return
+
         if not obj.access(caller, 'get'):
             if obj.db.get_err_msg:
                 caller.msg(obj.db.get_err_msg)

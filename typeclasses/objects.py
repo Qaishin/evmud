@@ -11,6 +11,8 @@ inheritance.
 
 """
 from evennia import DefaultObject
+from evennia.utils import lazy_property
+from world.stacks import StackHandler
 
 
 class Object(DefaultObject):
@@ -160,4 +162,7 @@ class Object(DefaultObject):
                                  object speaks
 
      """
-    pass
+    @lazy_property
+    def stack(self):
+        """ StackHandler that manages stacks. """
+        return StackHandler(self)
