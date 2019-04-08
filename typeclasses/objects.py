@@ -12,7 +12,7 @@ inheritance.
 """
 from collections import defaultdict
 from evennia import DefaultObject
-from evennia.utils import lazy_property, list_to_string
+from evennia.utils import lazy_property, list_to_string, justify
 from world.stacks import StackHandler
 
 
@@ -200,17 +200,16 @@ class Object(DefaultObject):
             if con.destination:
                 exits.append(key)
             elif con.has_account:
-                users.append("|c%s|n" % key)
+                users.append("%s" % key)
             else:
                 # things can be pluralized
                 things[key].append(con)
         # get description, build string
-        string = "|c%s|n\n" % self.get_display_name(looker)
+        # string = "|Y%s|n\n" % self.get_display_name(looker)
+        string = ""
         desc = self.db.desc
         if desc:
             string += "%s" % desc
-        if exits:
-            string += "\n|wExits:|n " + list_to_string(exits)
         if users or things:
             # handle pluralization of things (never pluralize users)
             thing_strings = []
@@ -225,6 +224,18 @@ class Object(DefaultObject):
                     key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
                 thing_strings.append(key)
 
-            string += "\n|wYou see:|n " + list_to_string(users + thing_strings)
+            if thing_strings:
+                string += " |CYou see " + list_to_string(thing_strings) + ". "
 
-        return string
+            for user in users:
+                string += f"|c{user} is here. |n"
+
+        string = justify(string, align="l")
+
+        if exits:
+            if len(exits) > 1:
+                string += "\n|YYou see exits leading " + list_to_string(exits) + ".|n"
+            else:
+                string += "\n|YYou see a single exit leading " + exits[0] + ".|n"
+
+        return "|Y%s|n\n" % self.get_display_name(looker) + string
