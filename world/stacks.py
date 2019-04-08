@@ -12,6 +12,16 @@ on the object typeclass.
 """
 
 
+class StackException(Exception):
+    """Base exception class raised by `StackHandler` object.
+
+    Args:
+        msg (str): Informative error message.
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+
 class StackHandler:
     """
     Factory class that instantiates stacks on objects.
@@ -73,6 +83,10 @@ class StackHandler:
 
     def merge(self, obj):
         "Merge given object stack into this one."
+        if obj.key != self.obj.key:
+            raise StackException("Attempting to merge two object stacks with differing keys.")
+        if not obj.stack.stackable:
+            raise StackException("Attempting to merge non-stackable object with stackable object.")
         self.count += obj.stack.count
         obj.delete()
 
