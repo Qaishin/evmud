@@ -16,6 +16,20 @@ from evennia.utils import lazy_property, list_to_string, justify
 from world.stacks import StackHandler
 
 
+CARDINAL_SORT = {'north': 0,
+                 'northeast': 1,
+                 'east': 2,
+                 'southeast': 3,
+                 'south': 4,
+                 'southwest': 5,
+                 'west': 6,
+                 'northwest': 7,
+                 'up': 8,
+                 'down': 9,
+                 'in': 10,
+                 'out': 11}
+
+
 class Object(DefaultObject):
     """
     This is the root typeclass object, implementing an in-game Evennia
@@ -234,7 +248,9 @@ class Object(DefaultObject):
 
         if exits:
             if len(exits) > 1:
-                string += "\n|YYou see exits leading " + list_to_string(exits) + ".|n"
+                sort_list = [CARDINAL_SORT[ex] if ex in CARDINAL_SORT else 13 for ex in exits]
+                sorted_exits = [x for _, x in sorted(zip(sort_list, exits))]
+                string += "\n|YYou see exits leading " + list_to_string(sorted_exits) + ".|n"
             else:
                 string += "\n|YYou see a single exit leading " + exits[0] + ".|n"
 
