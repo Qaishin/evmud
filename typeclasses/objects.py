@@ -222,28 +222,41 @@ class Object(DefaultObject):
         string = ""
         desc = self.db.desc
         if desc:
-            string += "%s" % desc
+            string += "%s " % desc
         if users or things:
             # handle pluralization of things (never pluralize users)
             thing_strings = []
             for key, itemlist in sorted(things.items()):
                 nitem = len(itemlist)
                 if nitem == 1:
-                    if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
-                        key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
-                    else:
+                    try:
+                        if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
+                            key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
+                        else:
+                            key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                    except AttributeError:
                         key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
                 else:
                     key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
                 thing_strings.append(key)
 
             if thing_strings:
-                string += " |CYou see " + list_to_string(thing_strings) + ". "
+                string += "|CYou see " + list_to_string(thing_strings) + ". "
 
             for user in users:
                 string += f"|c{user} is here. |n"
 
         string = justify(string, align="l")
+
+        splitstring = string.split('\n')
+        string = ""
+        for i, s in enumerate(splitstring):
+            if i < 1:
+                string += s + "\n"
+            else:
+                string += " " + s
+                if i < len(splitstring) - 1:
+                    string += "\n"
 
         if exits:
             if len(exits) > 1:
@@ -253,4 +266,5 @@ class Object(DefaultObject):
             else:
                 string += "\n|YYou see a single exit leading " + exits[0] + ".|n"
 
-        return "|Y%s|n\n" % self.get_display_name(looker) + string
+        # return "|Y%s.|n\n" % self.get_display_name(looker) + string
+        return f"|Y{self.get_display_name(looker)}.|n\n{string}"
