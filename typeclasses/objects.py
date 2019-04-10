@@ -12,8 +12,7 @@ inheritance.
 """
 from collections import defaultdict
 from evennia import DefaultObject
-from evennia.utils import lazy_property, list_to_string, justify
-from world.stacks import StackHandler
+from evennia.utils import list_to_string, justify
 
 
 CARDINAL_SORT = {'north': 0,
@@ -177,21 +176,21 @@ class Object(DefaultObject):
                                  object speaks
 
      """
-    @lazy_property
-    def stack(self):
-        """ StackHandler that manages stacks. """
-        return StackHandler(self)
 
     def at_object_receive(self, obj, source_location):
         # Consolidate stackable items together.
-        if obj.stack.stackable:
-            for found in self.search(obj.key, location=self, quiet=True):
-                # Skip over received object, we want to move existing stackables into this one.
-                if found is obj:
-                    continue
-                # If we found another object with the same key and stackable property is True, then perform merge.
-                if found.stack.stackable:
-                    obj.stack.merge(found)
+        try:
+            if obj.stack.stackable:
+                for found in self.search(obj.key, location=self, quiet=True):
+                    # Skip over received object, we want to move existing stackables into this one.
+                    if found is obj:
+                        continue
+                    # If we found another object with the same key and stackable property is True, then perform merge.
+                    if found.stack.stackable:
+                        obj.stack.merge(found)
+        # If the object doesn't have a stack property, no big deal - just don't try to stack it.
+        except AttributeError:
+            pass
 
     def return_appearance(self, looker, **kwargs):
         """

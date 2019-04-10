@@ -42,9 +42,12 @@ class CmdInventory(MuxCommand):
         else:
             table = evtable.EvTable(border="header")
             for item in items:
-                if item.stack.stackable:
-                    table.add_row(f"|C{item.name}|n|w(|g{item.stack.count}|w)|n", item.db.desc or "")
-                else:
+                try:  # Make sure item is stackable. If not, add row normally.
+                    if item.stack.stackable:
+                        table.add_row(f"|C{item.name}|n|w(|g{item.stack.count}|w)|n", item.db.desc or "")
+                    else:
+                        table.add_row(f"|C{item.name}|n", item.db.desc or "")
+                except AttributeError:
                     table.add_row(f"|C{item.name}|n", item.db.desc or "")
             string = "|wYou are carrying:\n%s" % table
         self.caller.msg(string)
@@ -108,13 +111,17 @@ class CmdGet(MuxCommand):
         if not obj.at_before_get(caller):
             return
 
-        if obj.stack.stackable:
-            obj = obj.stack.split(self.amount)
+        try:  # Make sure object is stackable. If not, then echo messages normally.
+            if obj.stack.stackable:
+                obj = obj.stack.split(self.amount)
 
-            caller.msg(f"You pick up {obj.stack.count} {obj.name}{'s' if self.amount > 1 else ''}.")
-            caller.location.msg_contents(f"{caller.name} picks up {obj.stack.count} {obj.name}"
-                                         f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-        else:
+                caller.msg(f"You pick up {obj.stack.count} {obj.name}{'s' if self.amount > 1 else ''}.")
+                caller.location.msg_contents(f"{caller.name} picks up {obj.stack.count} {obj.name}"
+                                             f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+            else:
+                caller.msg(f"You pick up {obj.name}.")
+                caller.location.msg_contents(f"{caller.name} picks up {obj.name}.", exclude=caller)
+        except AttributeError:
             caller.msg(f"You pick up {obj.name}.")
             caller.location.msg_contents(f"{caller.name} picks up {obj.name}.", exclude=caller)
 
@@ -174,13 +181,17 @@ class CmdDrop(MuxCommand):
         if not obj.at_before_drop(caller):
             return
 
-        if obj.stack.stackable:
-            obj = obj.stack.split(self.amount)
-            caller.msg(f"You drop {obj.stack.count} {obj.name}"
-                       f"{'s' if self.amount > 1 else ''}.")
-            caller.location.msg_contents(f"{caller.name} drops {obj.stack.count} {obj.name}"
-                                         f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-        else:
+        try:  # Make sure object is stackable. If not, then echo messages normally.
+            if obj.stack.stackable:
+                obj = obj.stack.split(self.amount)
+                caller.msg(f"You drop {obj.stack.count} {obj.name}"
+                           f"{'s' if self.amount > 1 else ''}.")
+                caller.location.msg_contents(f"{caller.name} drops {obj.stack.count} {obj.name}"
+                                             f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+            else:
+                caller.msg(f"You drop {obj.name}.")
+                caller.location.msg_contents(f"{caller.name} drops {obj.name}.", exclude=caller)
+        except AttributeError:
             caller.msg(f"You drop {obj.name}.")
             caller.location.msg_contents(f"{caller.name} drops {obj.name}.", exclude=caller)
 
@@ -247,13 +258,17 @@ class CmdGive(MuxCommand):
         if not to_give.at_before_give(caller, target):
             return
 
-        if to_give.stack.stackable:
-            to_give = to_give.stack.split(self.amount)
-            caller.msg(f"You give {to_give.stack.count} {to_give.key}{'s' if self.amount > 1 else ''}"
-                       f" to {target.key}.")
-            target.msg(f"{caller.key} gives you {to_give.stack.count} {to_give.name}"
-                       f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-        else:
+        try:  # Make sure object is stackable. If not, then echo messages normally.
+            if to_give.stack.stackable:
+                to_give = to_give.stack.split(self.amount)
+                caller.msg(f"You give {to_give.stack.count} {to_give.key}{'s' if self.amount > 1 else ''}"
+                           f" to {target.key}.")
+                target.msg(f"{caller.key} gives you {to_give.stack.count} {to_give.name}"
+                           f"{'s' if self.amount > 1 else ''}.", exclude=caller)
+            else:
+                caller.msg(f"You give {to_give.key} to {target.key}.")
+                target.msg(f"{caller.key} gives you {to_give.name}.", exclude=caller)
+        except AttributeError:
             caller.msg(f"You give {to_give.key} to {target.key}.")
             target.msg(f"{caller.key} gives you {to_give.name}.", exclude=caller)
 

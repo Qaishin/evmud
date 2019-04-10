@@ -7,8 +7,6 @@ for allowing Characters to traverse the exit to its destination.
 
 """
 from evennia import DefaultExit
-from evennia.utils import lazy_property
-from world.stacks import StackHandler
 
 
 class Exit(DefaultExit):
@@ -36,8 +34,4 @@ class Exit(DefaultExit):
                                         not be called if the attribute `err_traverse` is
                                         defined, in which case that will simply be echoed.
     """
-    @lazy_property
-    def stack(self):
-        """ StackHandler that manages stacks. """
-        return StackHandler(self)
-
+    pass

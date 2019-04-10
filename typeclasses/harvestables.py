@@ -9,6 +9,7 @@ Evennia's prototype spawning system.
 """
 from evennia.prototypes.spawner import spawn
 from typeclasses.objects import Object
+from typeclasses.items import Item
 
 
 COMPONENT_PROTOTYPES = {
@@ -20,7 +21,7 @@ COMPONENT_PROTOTYPES = {
 }
 
 
-class CraftingComponent(Object):
+class CraftingComponent(Item):
     """
     This typeclass describes a crafting component.
     """
