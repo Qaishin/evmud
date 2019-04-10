@@ -252,7 +252,9 @@ class Object(DefaultObject):
         string = ""
         for i, s in enumerate(splitstring):
             if i < 1:
-                string += s + "\n"
+                string += s
+                if i < len(splitstring) - 1:
+                    string += "\n"
             else:
                 string += " " + s
                 if i < len(splitstring) - 1:
