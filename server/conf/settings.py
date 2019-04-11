@@ -34,6 +34,7 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "mud"
 
+START_LOCATION = "#9"
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
