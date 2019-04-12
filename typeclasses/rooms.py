@@ -53,7 +53,7 @@ class Room(Object, DefaultRoom):
         for con in visible:
             key = con.get_display_name(looker)
             if con.destination:
-                exits.append(key)
+                exits.append(con.name)
             elif con.has_account:
                 users.append("%s" % key)
             else:
