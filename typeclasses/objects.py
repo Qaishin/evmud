@@ -161,6 +161,10 @@ class Object(DefaultObject):
 
      """
 
+    def at_object_creation(self):
+        self.db.sdesc = self.key
+        self.db.ldesc = None
+
     def at_object_receive(self, obj, source_location):
         # Consolidate stackable items together.
         try:

@@ -15,7 +15,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from commands import harvest, item
+from commands import harvest, item, general
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -36,6 +36,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         self.add(harvest.HarvestCmdSet())
         self.add(item.ItemCmdSet())
+        self.add(general.GeneralCmdSet())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

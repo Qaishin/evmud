@@ -64,7 +64,7 @@ class Room(Object, DefaultRoom):
         string = ""
         desc = self.db.desc
         if desc:
-            string += "%s " % desc
+            string += "%s |C" % desc
         if users or things:
             # handle pluralization of things (never pluralize users)
             thing_strings = []
@@ -73,34 +73,45 @@ class Room(Object, DefaultRoom):
                 if nitem == 1:
                     try:
                         if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
-                            key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
+                            # key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
+                            sdesc = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker,
+                                                                  key=itemlist[0].db.sdesc)[1]
+                            key = f"There are {sdesc} here. "
                         else:
-                            key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                            # key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                            key = itemlist[0].db.ldesc + ". "
                     except AttributeError:
-                        key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                        # key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                        key = itemlist[0].db.ldesc + ". "
+
                 else:
-                    key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
+                    # key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
+                    sdesc = [item.get_numbered_name(nitem, looker, key=item.db.sdesc)[1] for item in itemlist][0]
+                    key = f"There are {sdesc} here. "
                 thing_strings.append(key)
 
             if thing_strings:
-                string += "|CYou see " + list_to_string(thing_strings) + ". "
+                # string += "|CYou see " + list_to_string(thing_strings) + ". "
+                for s in thing_strings:
+                    string += s
 
             for user in users:
                 string += f"|c{user} is here. |n"
 
         #  Do some pretty formatting here for the room description, objects, and players.
-        string = justify(string, align="l")
-        splitstring = string.split('\n')
-        string = ""
-        for i, s in enumerate(splitstring):
-            if i < 1:
-                string += s
-                if i < len(splitstring) - 1:
-                    string += "\n"
-            else:
-                string += " " + s
-                if i < len(splitstring) - 1:
-                    string += "\n"
+        string = justify(string, align="l", width=120)
+        splitstring = string.split('\n', 1)
+        if (len(splitstring) == 2):
+            string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
+        #for i, s in enumerate(splitstring):
+        #    if i < 1:
+        #        string += s
+        #        if i < len(splitstring) - 1:
+        #            string += "\n"
+        #    else:
+        #        string += " " + s
+        #        if i < len(splitstring) - 1:
+        #            string += "\n"
 
         if exits:
             if len(exits) > 1:

@@ -32,6 +32,10 @@ class Character(Object, DefaultCharacter):
     at_post_puppet - Echoes "AccountName has entered the game" to the room.
 
     """
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.deadldesc = f"{self.name} lies here, dead"
+
     def at_init(self):
         # Is the player currently harvesting a resource?
         self.ndb.harvesting = False
@@ -47,3 +51,13 @@ class Character(Object, DefaultCharacter):
                 self.ndb.harvesting_interrupt()
             stop_harvesting(self)
         return True
+
+
+class NPC(Character):
+    """
+    The NPC class extends the base Character class and adds mobile specific functionality.
+    """
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.ldesc = f"{self.get_numbered_name(1, None, key=self.db.sdesc)[0]} is here".capitalize()
+        self.db.deadldesc = f"A dead {self.db.sdesc} lies here."
