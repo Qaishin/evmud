@@ -71,15 +71,22 @@ class Room(Object, DefaultRoom):
             for key, itemlist in sorted(things.items()):
                 nitem = len(itemlist)
                 if nitem == 1:
+                    stackable = False
                     try:
-                        if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
-                            sdesc = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker,
-                                                                  key=itemlist[0].db.sdesc)[1]
-                            key = f"There are {sdesc} here. "
-                        else:
-                            key = itemlist[0].db.ldesc + ". "
+                        stackable = itemlist[0].stack.stackable
                     except AttributeError:
-                        key = itemlist[0].db.ldesc + ". "
+                        pass
+
+                    if stackable and itemlist[0].stack.count > 1:
+                        sdesc = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker,
+                                                              key=itemlist[0].db.sdesc)[1]
+                        key = f"There are {sdesc} here. "
+                    else:
+                        if itemlist[0].db.ldesc:
+                            key = itemlist[0].db.ldesc + ". "
+                        else:
+                            sdesc = itemlist[0].get_numbered_name(1, None, key=itemlist[0].db.sdesc)[0]
+                            key = f"There is {sdesc} here."
 
                 else:
                     sdesc = [item.get_numbered_name(nitem, looker, key=item.db.sdesc)[1] for item in itemlist][0]
