@@ -103,15 +103,6 @@ class Room(Object, DefaultRoom):
         splitstring = string.split('\n', 1)
         if (len(splitstring) == 2):
             string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
-        #for i, s in enumerate(splitstring):
-        #    if i < 1:
-        #        string += s
-        #        if i < len(splitstring) - 1:
-        #            string += "\n"
-        #    else:
-        #        string += " " + s
-        #        if i < len(splitstring) - 1:
-        #            string += "\n"
 
         if exits:
             if len(exits) > 1:

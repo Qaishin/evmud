@@ -80,15 +80,19 @@ class CmdChop(Command):
         if not target:
             return
 
+        sname = target.name
+        if target.db.sdesc:
+            sname = target.get_numbered_name(1, None, key=target.db.sdesc)[0]
+
         if not (isinstance(target, Tree) and target.access(caller, "chop")):
-            caller.msg("You are unable to chop down {0}!".format(target.name))
+            caller.msg("You are unable to chop down {0}!".format(sname))
             return
 
         # Code elsewhere may need to interrupt our tree chopping madness, such as when
         # moving to another room. This provides a callback that gives a sensible message
         # indicating that we were interrupted unexpectedly.
         def interrupt_callback():
-            caller.msg("You are interrupted and fail to finish chopping down {0}".format(target.name))
+            caller.msg("You are interrupted and fail to finish chopping down {0}".format(sname))
         caller.ndb.harvesting_interrupt = interrupt_callback
 
         caller.ndb.harvesting = True
@@ -100,17 +104,17 @@ class CmdChop(Command):
                     stop_harvesting(caller)
                     return
 
-                caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(target.name))
+                caller.msg("Chips of wood fly everywhere as you swing your axe into {0}.".format(sname))
                 string = "Chips of wood fly everywhere as {0} swings their axe into {1}.".format(caller.name,
-                                                                                                 target.name)
+                                                                                                 sname)
                 caller.location.msg_contents(string, exclude=[caller])
                 if target.chop(5):
                     stop_harvesting(caller)
                     return
                 elif target.hp <= target.max_hp / 4:
-                    caller.msg("{0} is beginning to lean heavily.".format(target.name))
+                    caller.msg("{0} is beginning to lean heavily.".format(sname))
                 elif target.hp <= target.max_hp / 2:
-                    caller.msg("There is a sizeable wedge in {0}".format(target.name))
+                    caller.msg("There is a sizeable wedge in {0}".format(sname))
 
                 yield 2
         finally:
