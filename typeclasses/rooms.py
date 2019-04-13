@@ -60,7 +60,6 @@ class Room(Object, DefaultRoom):
                 # things can be pluralized
                 things[key].append(con)
         # get description, build string
-        # string = "|Y%s|n\n" % self.get_display_name(looker)
         string = ""
         desc = self.db.desc
         if desc:
@@ -73,25 +72,20 @@ class Room(Object, DefaultRoom):
                 if nitem == 1:
                     try:
                         if itemlist[0].stack.stackable and itemlist[0].stack.count > 1:
-                            # key = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker, key=key)[1]
                             sdesc = itemlist[0].get_numbered_name(itemlist[0].stack.count, looker,
                                                                   key=itemlist[0].db.sdesc)[1]
                             key = f"There are {sdesc} here. "
                         else:
-                            # key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
                             key = itemlist[0].db.ldesc + ". "
                     except AttributeError:
-                        # key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
                         key = itemlist[0].db.ldesc + ". "
 
                 else:
-                    # key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][0]
                     sdesc = [item.get_numbered_name(nitem, looker, key=item.db.sdesc)[1] for item in itemlist][0]
                     key = f"There are {sdesc} here. "
                 thing_strings.append(key)
 
             if thing_strings:
-                # string += "|CYou see " + list_to_string(thing_strings) + ". "
                 for s in thing_strings:
                     string += s
 
@@ -112,5 +106,4 @@ class Room(Object, DefaultRoom):
             else:
                 string += "\n|YYou see a single exit leading " + exits[0] + ".|n"
 
-        # return "|Y%s.|n\n" % self.get_display_name(looker) + string
         return f"|Y{self.get_display_name(looker)}.|n\n{string}"
