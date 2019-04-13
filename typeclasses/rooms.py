@@ -51,9 +51,10 @@ class Room(Object, DefaultRoom):
                    con.access(looker, "view"))
         exits, users, things = [], [], defaultdict(list)
         for con in visible:
-            key = con.get_display_name(looker)
+            # key = con.get_display_name(looker)
+            key = con.name
             if con.destination:
-                exits.append(con.name)
+                exits.append(key)
             elif con.has_account:
                 users.append("%s" % key)
             else:
