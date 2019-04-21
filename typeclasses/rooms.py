@@ -101,10 +101,10 @@ class Room(Object, DefaultRoom):
                 string += f"|c{user} is here. |n"
 
         #  Do some pretty formatting here for the room description, objects, and players.
-        string = justify(string, align="l", width=120)
-        splitstring = string.split('\n', 1)
-        if (len(splitstring) == 2):
-            string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
+        string = justify(string, align="l", width=100)
+        # splitstring = string.split('\n', 1)
+        # if (len(splitstring) == 2):
+        #     string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
 
         if exits:
             if len(exits) > 1:
