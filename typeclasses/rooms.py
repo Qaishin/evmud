@@ -5,9 +5,12 @@ Rooms are simple containers that has no location of their own.
 
 """
 from collections import defaultdict
+from django.conf import settings
 from evennia import DefaultRoom
 from evennia.utils import list_to_string, justify
 from typeclasses.objects import Object
+
+_SCREEN_WIDTH = settings.CLIENT_DEFAULT_WIDTH
 
 CARDINAL_SORT = {'north': 0,
                  'northeast': 1,
@@ -101,7 +104,11 @@ class Room(Object, DefaultRoom):
                 string += f"|c{user} is here. |n"
 
         #  Do some pretty formatting here for the room description, objects, and players.
-        string = justify(string, align="l", width=100)
+        wraplength = 120
+        if (looker.has_account):
+            session = looker.sessions.get()[0]
+            wraplength = session.protocol_flags.get("SCREENWIDTH", {0: _SCREEN_WIDTH})[0]
+        string = justify(string, align="l", width=wraplength)
         # splitstring = string.split('\n', 1)
         # if (len(splitstring) == 2):
         #     string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
