@@ -121,20 +121,20 @@ class CmdGet(MuxCommand):
 
         if stackable:
             if self.amount > obj.stack.count:
-                caller.msg(f"I don't see that many {obj.db.sdesc}s here!")
+                caller.msg(f"I don't see that many {obj.name}s here!")
                 return
 
             obj = obj.stack.split(self.amount)
 
-            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.db.sdesc)[1 if obj.stack.count > 1 else 0]
+            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.name)[1 if obj.stack.count > 1 else 0]
             caller.msg(f"You pick up {numname}.")
             caller.location.msg_contents(f"{caller.name} picks up {numname}.", exclude=caller)
         else:
             if self.amount > 1:
-                caller.msg(f"You may only pick up one {obj.db.sdesc} at a time.")
+                caller.msg(f"You may only pick up one {obj.name} at a time.")
                 return
 
-            numname = obj.get_numbered_name(1, caller, key=obj.db.sdesc)[0]
+            numname = obj.get_numbered_name(1, caller, key=obj.name)[0]
             caller.msg(f"You pick up {numname}.")
             caller.location.msg_contents(f"{caller.name} picks up {numname}.", exclude=caller)
 
@@ -204,20 +204,20 @@ class CmdDrop(MuxCommand):
 
         if stackable:
             if self.amount > obj.stack.count:
-                caller.msg(f"You don't have that many {obj.db.sdesc}s in your inventory!")
+                caller.msg(f"You don't have that many {obj.name}s in your inventory!")
                 return
 
             obj = obj.stack.split(self.amount)
 
-            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.db.sdesc)[1 if obj.stack.count > 1 else 0]
+            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.name)[1 if obj.stack.count > 1 else 0]
             caller.msg(f"You drop {numname}.")
             caller.location.msg_contents(f"{caller.name} drops {numname}.", exclude=caller)
         else:
             if self.amount > 1:
-                caller.msg(f"You may only drop one {obj.db.sdesc} at a time.")
+                caller.msg(f"You may only drop one {obj.name} at a time.")
                 return
 
-            numname = obj.get_numbered_name(1, caller, key=obj.db.sdesc)[0]
+            numname = obj.get_numbered_name(1, caller, key=obj.name)[0]
             caller.msg(f"You drop {numname}.")
             caller.location.msg_contents(f"{caller.name} drops {numname}.", exclude=caller)
 
@@ -294,22 +294,22 @@ class CmdGive(MuxCommand):
 
         if stackable:
             if self.amount > to_give.stack.count:
-                caller.msg(f"You don't have that many {to_give.db.sdesc}s in your inventory!")
+                caller.msg(f"You don't have that many {to_give.name}s in your inventory!")
                 return
 
             to_give = to_give.stack.split(self.amount)
 
             numname = to_give.get_numbered_name(to_give.stack.count,
                                                 caller,
-                                                key=to_give.db.sdesc)[1 if to_give.stack.count > 1 else 0]
+                                                key=to_give.name)[1 if to_give.stack.count > 1 else 0]
             caller.msg(f"You give {numname} to {target.key}.")
             target.msg(f"{caller.key} gives you {numname}.", exclude=caller)
         else:
             if self.amount > 1:
-                caller.msg(f"You may only give one {to_give.db.sdesc} at a time.")
+                caller.msg(f"You may only give one {to_give.name} at a time.")
                 return
 
-            numname = to_give.get_numbered_name(1, caller, key=to_give.db.sdesc)[0]
+            numname = to_give.get_numbered_name(1, caller, key=to_give.name)[0]
             caller.msg(f"You give {numname} to {target.key}.")
             target.msg(f"{caller.key} gives you {numname}.", exclude=caller)
 

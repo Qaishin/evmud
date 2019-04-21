@@ -59,5 +59,5 @@ class NPC(Character):
     """
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.ldesc = f"{self.get_numbered_name(1, None, key=self.db.sdesc)[0]} is here".capitalize()
-        self.db.deadldesc = f"A dead {self.db.sdesc} lies here."
+        self.db.ldesc = f"{self.get_numbered_name(1, None, key=self.name)[0]} is here".capitalize()
+        self.db.deadldesc = f"A dead {self.name} lies here."

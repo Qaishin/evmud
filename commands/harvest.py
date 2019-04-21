@@ -80,9 +80,7 @@ class CmdChop(Command):
         if not target:
             return
 
-        sname = target.name
-        if target.db.sdesc:
-            sname = target.get_numbered_name(1, None, key=target.db.sdesc)[0]
+        sname = target.get_numbered_name(1, None, key=target.name)[0]
 
         if not (isinstance(target, Tree) and target.access(caller, "chop")):
             caller.msg("You are unable to chop down {0}!".format(sname))

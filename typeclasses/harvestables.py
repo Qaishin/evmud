@@ -63,7 +63,7 @@ class Tree(Object):
 
         if self.db.hp <= 0:
             # spawn logs
-            sname = self.get_numbered_name(1, None, key=self.db.sdesc)[0].capitalize()
+            sname = self.get_numbered_name(1, None, key=self.name)[0].capitalize()
             self.location.msg_contents("{0} makes a loud cracking sound and falls to the ground.".format(sname))
 
             drop = spawn(COMPONENT_PROTOTYPES[self.db.component_drop], prototype_parents=COMPONENT_PROTOTYPES)[0]

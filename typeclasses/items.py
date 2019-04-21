@@ -16,7 +16,7 @@ class Item(Object):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.ldesc = f"{self.get_numbered_name(1, None, key=self.db.sdesc)[0]} is here".capitalize()
+        self.db.ldesc = f"{self.get_numbered_name(1, None, key=self.name)[0]} is here".capitalize()
 
     @lazy_property
     def stack(self):

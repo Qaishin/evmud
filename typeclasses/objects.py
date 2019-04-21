@@ -10,7 +10,11 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
+import inflect
 from evennia import DefaultObject
+from evennia.utils import ansi
+
+_INFLECT = inflect.engine()
 
 
 class Object(DefaultObject):
@@ -162,7 +166,6 @@ class Object(DefaultObject):
      """
 
     def at_object_creation(self):
-        self.db.sdesc = self.key
         self.db.ldesc = None
 
     def at_object_receive(self, obj, source_location):
@@ -179,6 +182,37 @@ class Object(DefaultObject):
         # If the object doesn't have a stack property, no big deal - just don't try to stack it.
         except AttributeError:
             pass
+
+    def get_numbered_name(self, count, looker, **kwargs):
+        """
+        Return the numbered (singular, plural) forms of this object's key. This is by default called
+        by return_appearance and is used for grouping multiple same-named of this object. Note that
+        this will be called on *every* member of a group even though the plural name will be only
+        shown once. Also the singular display version, such as 'an apple', 'a tree' is determined
+        from this method.
+
+        Args:
+            count (int): Number of objects of this type
+            looker (Object): Onlooker. Not used by default.
+        Kwargs:
+            key (str): Optional key to pluralize, if given, use this instead of the object's key.
+        Returns:
+            singular (str): The singular form to display.
+            plural (str): The determined plural form of the key, including the count.
+        """
+        key = kwargs.get("key", self.key)
+        key = ansi.ANSIString(key)  # this is needed to allow inflection of colored names
+        plural = _INFLECT.plural(key, 2)
+        plural = "%s %s" % (_INFLECT.number_to_words(count, threshold=12), plural)
+        singular = _INFLECT.an(key)
+        if not self.aliases.get(plural, category="plural_key"):
+            # we need to wipe any old plurals/an/a in case key changed in the interrim
+            self.aliases.clear(category="plural_key")
+            self.aliases.add(plural, category="plural_key")
+            # save the singular form as an alias here too so we can display "an egg" and also
+            # look at 'an egg'.
+            self.aliases.add(singular, category="plural_key")
+        return singular, plural
 
     def announce_move_from(self, destination, msg=None, mapping=None, **kwargs):
         """
