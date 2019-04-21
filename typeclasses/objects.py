@@ -207,6 +207,9 @@ class Object(DefaultObject):
         # If a name is capitalized, we shouldn't inflect it. e.g. You punch a Thomas, vs. You punch Thomas.
         if key[0].isupper():
             singular = key
+        # If the name starts with 'corpse', use the instead of a
+        elif key.split(' ', 1)[0] == "corpse":
+            singular = "the " + key
         else:
             singular = _INFLECT.an(key)
         if not self.aliases.get(plural, category="plural_key"):
