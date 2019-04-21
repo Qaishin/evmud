@@ -111,19 +111,32 @@ class CmdGet(MuxCommand):
         if not obj.at_before_get(caller):
             return
 
-        try:  # Make sure object is stackable. If not, then echo messages normally.
+        # Check if object is stackable.
+        stackable = False
+        try:
             if obj.stack.stackable:
-                obj = obj.stack.split(self.amount)
-
-                caller.msg(f"You pick up {obj.stack.count} {obj.name}{'s' if self.amount > 1 else ''}.")
-                caller.location.msg_contents(f"{caller.name} picks up {obj.stack.count} {obj.name}"
-                                             f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-            else:
-                caller.msg(f"You pick up {obj.name}.")
-                caller.location.msg_contents(f"{caller.name} picks up {obj.name}.", exclude=caller)
+                stackable = True
         except AttributeError:
-            caller.msg(f"You pick up {obj.name}.")
-            caller.location.msg_contents(f"{caller.name} picks up {obj.name}.", exclude=caller)
+            pass
+
+        if stackable:
+            if self.amount > obj.stack.count:
+                caller.msg(f"I don't see that many {obj.db.sdesc}s here!")
+                return
+
+            obj = obj.stack.split(self.amount)
+
+            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.db.sdesc)[1 if obj.stack.count > 1 else 0]
+            caller.msg(f"You pick up {numname}.")
+            caller.location.msg_contents(f"{caller.name} picks up {numname}.", exclude=caller)
+        else:
+            if self.amount > 1:
+                caller.msg(f"You may only pick up one {obj.db.sdesc} at a time.")
+                return
+
+            numname = obj.get_numbered_name(1, caller, key=obj.db.sdesc)[0]
+            caller.msg(f"You pick up {numname}.")
+            caller.location.msg_contents(f"{caller.name} picks up {numname}.", exclude=caller)
 
         obj.move_to(caller, quiet=True)
 
@@ -181,19 +194,32 @@ class CmdDrop(MuxCommand):
         if not obj.at_before_drop(caller):
             return
 
-        try:  # Make sure object is stackable. If not, then echo messages normally.
+        # Check if object is stackable.
+        stackable = False
+        try:
             if obj.stack.stackable:
-                obj = obj.stack.split(self.amount)
-                caller.msg(f"You drop {obj.stack.count} {obj.name}"
-                           f"{'s' if self.amount > 1 else ''}.")
-                caller.location.msg_contents(f"{caller.name} drops {obj.stack.count} {obj.name}"
-                                             f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-            else:
-                caller.msg(f"You drop {obj.name}.")
-                caller.location.msg_contents(f"{caller.name} drops {obj.name}.", exclude=caller)
+                stackable = True
         except AttributeError:
-            caller.msg(f"You drop {obj.name}.")
-            caller.location.msg_contents(f"{caller.name} drops {obj.name}.", exclude=caller)
+            pass
+
+        if stackable:
+            if self.amount > obj.stack.count:
+                caller.msg(f"You don't have that many {obj.db.sdesc}s in your inventory!")
+                return
+
+            obj = obj.stack.split(self.amount)
+
+            numname = obj.get_numbered_name(obj.stack.count, caller, key=obj.db.sdesc)[1 if obj.stack.count > 1 else 0]
+            caller.msg(f"You drop {numname}.")
+            caller.location.msg_contents(f"{caller.name} drops {numname}.", exclude=caller)
+        else:
+            if self.amount > 1:
+                caller.msg(f"You may only drop one {obj.db.sdesc} at a time.")
+                return
+
+            numname = obj.get_numbered_name(1, caller, key=obj.db.sdesc)[0]
+            caller.msg(f"You drop {numname}.")
+            caller.location.msg_contents(f"{caller.name} drops {numname}.", exclude=caller)
 
         obj.move_to(caller.location, quiet=True)
 
@@ -258,19 +284,34 @@ class CmdGive(MuxCommand):
         if not to_give.at_before_give(caller, target):
             return
 
-        try:  # Make sure object is stackable. If not, then echo messages normally.
+        # Check if object is stackable.
+        stackable = False
+        try:
             if to_give.stack.stackable:
-                to_give = to_give.stack.split(self.amount)
-                caller.msg(f"You give {to_give.stack.count} {to_give.key}{'s' if self.amount > 1 else ''}"
-                           f" to {target.key}.")
-                target.msg(f"{caller.key} gives you {to_give.stack.count} {to_give.name}"
-                           f"{'s' if self.amount > 1 else ''}.", exclude=caller)
-            else:
-                caller.msg(f"You give {to_give.key} to {target.key}.")
-                target.msg(f"{caller.key} gives you {to_give.name}.", exclude=caller)
+                stackable = True
         except AttributeError:
-            caller.msg(f"You give {to_give.key} to {target.key}.")
-            target.msg(f"{caller.key} gives you {to_give.name}.", exclude=caller)
+            pass
+
+        if stackable:
+            if self.amount > to_give.stack.count:
+                caller.msg(f"You don't have that many {to_give.db.sdesc}s in your inventory!")
+                return
+
+            to_give = to_give.stack.split(self.amount)
+
+            numname = to_give.get_numbered_name(to_give.stack.count,
+                                                caller,
+                                                key=to_give.db.sdesc)[1 if to_give.stack.count > 1 else 0]
+            caller.msg(f"You give {numname} to {target.key}.")
+            target.msg(f"{caller.key} gives you {numname}.", exclude=caller)
+        else:
+            if self.amount > 1:
+                caller.msg(f"You may only give one {to_give.db.sdesc} at a time.")
+                return
+
+            numname = to_give.get_numbered_name(1, caller, key=to_give.db.sdesc)[0]
+            caller.msg(f"You give {numname} to {target.key}.")
+            target.msg(f"{caller.key} gives you {numname}.", exclude=caller)
 
         # give object
         to_give.move_to(target, quiet=True)

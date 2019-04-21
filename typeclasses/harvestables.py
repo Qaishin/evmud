@@ -36,7 +36,7 @@ class Tree(Object):
     """
     def at_object_creation(self):
         self.locks.add("get:false();chop:all()")
-        self.db.get_err_msg = "You can't pick {0} up. Try chopping it with an axe instead!".format(self.name)
+        self.db.get_err_msg = "This is much too massive to pick up. Try chopping it with an axe instead!"
         self.db.max_hp = 20
         self.db.hp = 20
         # The crafting component prototype that should be spawned on a successful harvest.

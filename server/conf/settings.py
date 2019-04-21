@@ -35,6 +35,7 @@ from evennia.settings_default import *
 SERVERNAME = "mud"
 
 START_LOCATION = "#9"
+INLINEFUNC_ENABLED = True
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

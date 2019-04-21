@@ -112,9 +112,9 @@ class CmdChop(Command):
                     stop_harvesting(caller)
                     return
                 elif target.hp <= target.max_hp / 4:
-                    caller.msg("{0} is beginning to lean heavily.".format(sname))
+                    caller.msg(f"{sname} is beginning to lean heavily.".capitalize())
                 elif target.hp <= target.max_hp / 2:
-                    caller.msg("There is a sizeable wedge in {0}".format(sname))
+                    caller.msg(f"There is a sizeable wedge in {sname}.")
 
                 yield 2
         finally:
