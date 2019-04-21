@@ -204,14 +204,19 @@ class Object(DefaultObject):
         key = ansi.ANSIString(key)  # this is needed to allow inflection of colored names
         plural = _INFLECT.plural(key, 2)
         plural = "%s %s" % (_INFLECT.number_to_words(count, threshold=12), plural)
-        singular = _INFLECT.an(key)
+        # If a name is capitalized, we shouldn't inflect it. e.g. You punch a Thomas, vs. You punch Thomas.
+        if key[0].isupper():
+            singular = key
+        else:
+            singular = _INFLECT.an(key)
         if not self.aliases.get(plural, category="plural_key"):
             # we need to wipe any old plurals/an/a in case key changed in the interrim
             self.aliases.clear(category="plural_key")
             self.aliases.add(plural, category="plural_key")
             # save the singular form as an alias here too so we can display "an egg" and also
             # look at 'an egg'.
-            self.aliases.add(singular, category="plural_key")
+            if not key[0].isupper():
+                self.aliases.add(singular, category="plural_key")
         return singular, plural
 
     def announce_move_from(self, destination, msg=None, mapping=None, **kwargs):
