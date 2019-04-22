@@ -103,12 +103,19 @@ class Room(Object, DefaultRoom):
             for user in users:
                 string += f"|c{user} is here. |n"
 
-        #  Do some pretty formatting here for the room description, objects, and players.
+        # Do some pretty formatting here for the room description, objects, and players.
         wraplength = 120
         if (looker.has_account):
             session = looker.sessions.get()[0]
-            wraplength = session.protocol_flags.get("SCREENWIDTH", {0: _SCREEN_WIDTH})[0]
-        string = justify(string, align="l", width=wraplength)
+            wraplength = session.protocol_flags.get("SCREENWIDTH", {0: 0})[0]
+
+        # Strip newlines and extra whitespace from description. This allows us to wrap ONLY if SCREENWIDTH exists and
+        # is set above 0. Otherwise, leave wrapping to the client itself.
+        string = string.replace('\n', ' ')
+        string = ' '.join(string.split())
+        if wraplength > 0:
+            string = justify(string, align="l", width=wraplength)
+
         # splitstring = string.split('\n', 1)
         # if (len(splitstring) == 2):
         #     string = splitstring[0] + '\n' + justify(splitstring[1], align="l", width=119, indent=1)
