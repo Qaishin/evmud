@@ -89,7 +89,7 @@ class Room(Object, DefaultRoom):
                             key = itemlist[0].db.ldesc + ". "
                         else:
                             sdesc = itemlist[0].get_numbered_name(1, None, key=itemlist[0].name)[0]
-                            key = f"There is {sdesc} here."
+                            key = f"There is {sdesc} here. "
 
                 else:
                     sdesc = [item.get_numbered_name(nitem, looker, key=item.name)[1] for item in itemlist][0]
@@ -124,8 +124,8 @@ class Room(Object, DefaultRoom):
             if len(exits) > 1:
                 sort_list = [CARDINAL_SORT[ex] if ex in CARDINAL_SORT else 13 for ex in exits]
                 sorted_exits = [x for _, x in sorted(zip(sort_list, exits))]
-                string += "\n|YYou see exits leading " + list_to_string(sorted_exits) + ".|n"
+                string += "\n|bYou see exits leading " + list_to_string(sorted_exits) + ".|n"
             else:
-                string += "\n|YYou see a single exit leading " + exits[0] + ".|n"
+                string += "\n|bYou see a single exit leading " + exits[0] + ".|n"
 
         return f"|Y{self.get_display_name(looker)}.|n\n{string}"
